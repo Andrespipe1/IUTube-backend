@@ -6,10 +6,12 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     ffmpeg \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar yt-dlp globalmente y verificar instalación
-RUN pip3 install --no-cache-dir yt-dlp && \
+# Instalar yt-dlp descargando el binario directamente (más confiable)
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
+    chmod a+rx /usr/local/bin/yt-dlp && \
     yt-dlp --version && \
     echo "yt-dlp instalado correctamente"
 
