@@ -72,6 +72,13 @@ function getYtdlpPath() {
 const ytdlpPath = getYtdlpPath();
 const cookiesPath = path.join(process.cwd(), 'cookies.txt'); // ./cookies.txt en la raíz del proyecto
 
+// Verificar que cookies.txt existe al iniciar
+if (existsSync(cookiesPath)) {
+    console.log(`✅ Archivo de cookies encontrado en: ${cookiesPath}`);
+} else {
+    console.warn(`⚠️  Archivo de cookies NO encontrado en: ${cookiesPath}`);
+}
+
 class VideoController {
 
     // ============================================================
@@ -90,21 +97,36 @@ class VideoController {
 
             // Detectar si es probable que necesitemos extractor android para música
             const useAndroidExtractor =
-                url.includes("music.youtube") ||
+                url.includes("music.youtube") || 
                 url.includes("list=RD") ||
                 url.includes("start_radio");
 
+            // Construir argumentos base
             const args = [
-                '--cookies', cookiesPath,
                 '--dump-json',
                 '--no-check-certificates',
                 '--no-warnings',
                 '--geo-bypass',
-                // usar extractor android solo si creemos que es música protegida
-                ...(useAndroidExtractor ? ['--extractor-args', 'youtube:player_client=android'] : []),
-                '--format', 'bestvideo*+bestaudio/best',
-                url
+                '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                '--referer', 'https://www.youtube.com/',
+                '--add-header', 'Accept-Language:en-US,en;q=0.9',
             ];
+
+            // Agregar cookies si el archivo existe
+            if (existsSync(cookiesPath)) {
+                args.push('--cookies', cookiesPath);
+                console.log(`Usando cookies desde: ${cookiesPath}`);
+            } else {
+                console.warn(`⚠️  Archivo de cookies no encontrado, continuando sin cookies`);
+            }
+
+            // usar extractor android solo si creemos que es música protegida
+            if (useAndroidExtractor) {
+                args.push('--extractor-args', 'youtube:player_client=android');
+            }
+
+            args.push('--format', 'bestvideo*+bestaudio/best');
+            args.push(url);
 
             const child = spawn(ytdlpPath, args);
 
@@ -178,13 +200,25 @@ class VideoController {
 
             url = normalizeYouTubeURL(url);
 
+            // Construir argumentos base
             const args = [
-                '--cookies', cookiesPath,
                 '-f', format_id || 'bestvideo+bestaudio/best',
                 '--merge-output-format', 'mp4',
+                '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                '--referer', 'https://www.youtube.com/',
+                '--add-header', 'Accept-Language:en-US,en;q=0.9',
                 '-o', '-',
-                url
             ];
+
+            // Agregar cookies si el archivo existe
+            if (existsSync(cookiesPath)) {
+                args.push('--cookies', cookiesPath);
+                console.log(`Usando cookies desde: ${cookiesPath}`);
+            } else {
+                console.warn(`⚠️  Archivo de cookies no encontrado, continuando sin cookies`);
+            }
+
+            args.push(url);
 
             const child = spawn(ytdlpPath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
 

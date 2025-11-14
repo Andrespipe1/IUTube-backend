@@ -27,8 +27,15 @@ RUN npm install --production
 # Copiar el resto de los archivos de la aplicación
 COPY . .
 
-# Verificar que cookies.txt existe (si no existe, crear uno vacío como fallback)
-RUN if [ ! -f cookies.txt ]; then echo "# Cookies file" > cookies.txt; fi
+# Verificar que cookies.txt existe y mostrar información
+RUN if [ -f cookies.txt ]; then \
+        echo "✅ Archivo cookies.txt encontrado" && \
+        ls -lh cookies.txt && \
+        head -5 cookies.txt; \
+    else \
+        echo "⚠️  Archivo cookies.txt NO encontrado - creando uno vacío" && \
+        echo "# Cookies file - Reemplaza este archivo con tus cookies reales" > cookies.txt; \
+    fi
 
 # Establecer variable de entorno para producción
 ENV NODE_ENV=production
