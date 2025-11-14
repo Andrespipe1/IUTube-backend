@@ -7,29 +7,24 @@ function normalizeYouTubeURL(url) {
     try {
         if (!url) return url;
 
-        // Shorts
         if (url.includes("shorts/")) {
             const id = url.split("shorts/")[1].split("?")[0];
             return `https://www.youtube.com/watch?v=${id}`;
         }
 
-        // YouTube Music → usar solo si realmente es music.yt
         if (url.includes("music.youtube.com")) {
             url = url.replace("music.youtube.com", "www.youtube.com");
         }
 
-        // youtu.be
         if (url.includes("youtu.be/")) {
             const id = url.split("youtu.be/")[1].split("?")[0];
             return `https://www.youtube.com/watch?v=${id}`;
         }
 
-        // Eliminar listas
         if (url.includes("&list=")) {
             url = url.split("&list=")[0];
         }
 
-        // Quitar extras
         if (url.includes("&")) {
             url = url.split("&")[0];
         }
@@ -59,31 +54,27 @@ class VideoController {
 
             const { spawn } = await import('child_process');
 
-            // 👇🔥 SOLO usar player_client=android si es música
             const useAndroidExtractor =
                 url.includes("music.youtube") ||
                 url.includes("list=RD") ||
                 url.includes("start_radio");
 
             const args = [
+                '--cookies', './cookies.txt',               // 🔥 COOKIES PARA EVITAR CAPTCHA
                 '--dump-json',
                 '--no-check-certificates',
                 '--no-warnings',
                 '--geo-bypass',
 
-                // Usarlo solo si es música real
                 ...(useAndroidExtractor
                     ? ['--extractor-args', 'youtube:player_client=android']
                     : []),
 
                 '--format', 'bestvideo*+bestaudio/best',
-
                 url
             ];
 
-            const ytDlp = spawn('./yt-dlp', args);
-
-
+            const ytDlp = spawn('/usr/local/bin/yt-dlp', args);
 
             let data = '';
             let errorData = '';
@@ -151,15 +142,14 @@ class VideoController {
             const { spawn } = await import('child_process');
 
             const args = [
+                '--cookies', './cookies.txt',      // 🔥 NECESARIO PARA DESCARGAS PROTEGIDAS
                 '-f', format_id || 'bestvideo+bestaudio/best',
                 '--merge-output-format', 'mp4',
                 '-o', '-',
                 url
             ];
 
-            const ytDlp = spawn('./yt-dlp', args);
-
-
+            const ytDlp = spawn('/usr/local/bin/yt-dlp', args);
 
             res.header('Content-Disposition', 'attachment; filename="video.mp4"');
 
