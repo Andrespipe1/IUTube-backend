@@ -30,6 +30,9 @@ COPY . .
 # Verificar que cookies.txt existe (si no existe, crear uno vacío como fallback)
 RUN if [ ! -f cookies.txt ]; then echo "# Cookies file" > cookies.txt; fi
 
+# Establecer variable de entorno para producción
+ENV NODE_ENV=production
+
 # Exponer el puerto
 EXPOSE 3000
 

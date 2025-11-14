@@ -4,6 +4,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import path from 'path';
 import { spawn } from 'child_process';
+import { existsSync } from 'fs';
 
 /**
  * Normaliza URLs problemáticas:
@@ -50,10 +51,25 @@ function normalizeYouTubeURL(url) {
     }
 }
 
-// Usar 'yt-dlp' desde PATH (instalado con pip) o intentar ejecutable local como fallback
-const ytdlpPath = process.env.NODE_ENV === 'production' || process.env.USE_SYSTEM_YTDLP 
-    ? 'yt-dlp'  // En producción/Docker, usar desde PATH
-    : path.join(process.cwd(), 'yt-dlp');  // En desarrollo local, intentar ejecutable local
+// Función para determinar la ruta de yt-dlp
+// En Docker/producción siempre usar desde PATH, en desarrollo local intentar ejecutable local
+function getYtdlpPath() {
+    // Si está en Docker o producción, usar desde PATH
+    if (process.env.NODE_ENV === 'production' || 
+        process.env.USE_SYSTEM_YTDLP || 
+        process.env.DOCKER_ENV) {
+        return 'yt-dlp';  // Usar desde PATH
+    }
+    // En desarrollo local, verificar si existe el ejecutable local
+    const localPath = path.join(process.cwd(), 'yt-dlp');
+    if (existsSync(localPath)) {
+        return localPath;
+    }
+    // Si no existe localmente, usar desde PATH como fallback
+    return 'yt-dlp';
+}
+
+const ytdlpPath = getYtdlpPath();
 const cookiesPath = path.join(process.cwd(), 'cookies.txt'); // ./cookies.txt en la raíz del proyecto
 
 class VideoController {
