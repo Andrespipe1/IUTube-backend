@@ -50,7 +50,10 @@ function normalizeYouTubeURL(url) {
     }
 }
 
-const ytdlpPath = path.join(process.cwd(), 'yt-dlp');     // ./yt-dlp en la raíz del proyecto
+// Usar 'yt-dlp' desde PATH (instalado con pip) o intentar ejecutable local como fallback
+const ytdlpPath = process.env.NODE_ENV === 'production' || process.env.USE_SYSTEM_YTDLP 
+    ? 'yt-dlp'  // En producción/Docker, usar desde PATH
+    : path.join(process.cwd(), 'yt-dlp');  // En desarrollo local, intentar ejecutable local
 const cookiesPath = path.join(process.cwd(), 'cookies.txt'); // ./cookies.txt en la raíz del proyecto
 
 class VideoController {
