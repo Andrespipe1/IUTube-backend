@@ -74,7 +74,7 @@ class VideoController {
                 url
             ];
 
-            const ytDlp = spawn('/usr/local/bin/yt-dlp', args);
+            const ytDlp = spawn('./yt-dlp', args);
 
             let data = '';
             let errorData = '';
@@ -149,7 +149,8 @@ class VideoController {
                 url
             ];
 
-            const ytDlp = spawn('/usr/local/bin/yt-dlp', args);
+            const ytDlp = spawn('./yt-dlp', args);
+
 
             res.header('Content-Disposition', 'attachment; filename="video.mp4"');
 
