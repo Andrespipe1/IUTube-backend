@@ -29,6 +29,7 @@ COPY . .
 
 # Verificar que cookies.txt existe y mostrar información
 RUN if [ -f cookies.txt ]; then \
+
         echo "✅ Archivo cookies.txt encontrado" && \
         ls -lh cookies.txt && \
         head -5 cookies.txt; \
@@ -36,6 +37,8 @@ RUN if [ -f cookies.txt ]; then \
         echo "⚠️  Archivo cookies.txt NO encontrado - creando uno vacío" && \
         echo "# Cookies file - Reemplaza este archivo con tus cookies reales" > cookies.txt; \
     fi
+    
+RUN echo "Mostrando cookies en /app:" && ls -l /app && head -5 /app/cookies.txt || echo "cookies no encontradas"
 
 # Establecer variable de entorno para producción
 ENV NODE_ENV=production

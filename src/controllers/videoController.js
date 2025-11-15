@@ -70,7 +70,8 @@ function getYtdlpPath() {
 }
 
 const ytdlpPath = getYtdlpPath();
-const cookiesPath = path.join(process.cwd(), 'cookies.txt'); // ./cookies.txt en la raíz del proyecto
+const cookiesPath = path.join(__dirname, "../../cookies.txt");
+// ./cookies.txt en la raíz del proyecto
 
 // Verificar que cookies.txt existe al iniciar
 if (existsSync(cookiesPath)) {
